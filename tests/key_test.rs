@@ -259,13 +259,16 @@ fn test_parse_details() {
         KeyId::from_slice(&[0x4C, 0x07, 0x3A, 0xE0, 0xC8, 0x44, 0x5C, 0x0C]).unwrap(),
     );
     let key_flags: SmallVec<[u8; 1]> = KeyFlags(0x03).into();
-    let p_sym_algs = smallvec![
+    let mut p_sym_algs = smallvec![
         SymmetricKeyAlgorithm::AES256,
         SymmetricKeyAlgorithm::AES192,
         SymmetricKeyAlgorithm::AES128,
-        SymmetricKeyAlgorithm::CAST5,
-        SymmetricKeyAlgorithm::TripleDES,
     ];
+    #[cfg(feature = "cast5")]
+    p_sym_algs.push(SymmetricKeyAlgorithm::CAST5);
+    #[cfg(feature = "des")]
+    p_sym_algs.push(SymmetricKeyAlgorithm::TripleDES);
+
     let p_com_algs = smallvec![
         CompressionAlgorithm::ZLIB,
         CompressionAlgorithm::BZip2,

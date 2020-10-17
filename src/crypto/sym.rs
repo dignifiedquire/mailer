@@ -1,11 +1,15 @@
 use aes::{Aes128, Aes192, Aes256};
+#[cfg(feature = "blowfish")]
 use blowfish::Blowfish;
+#[cfg(feature = "cast5")]
 use cast5::Cast5;
 use cfb_mode::stream_cipher::{NewStreamCipher, StreamCipher};
 use cfb_mode::Cfb;
+#[cfg(feature = "des")]
 use des::TdesEde3;
 use rand::{thread_rng, CryptoRng, Rng};
 use sha1::{Digest, Sha1};
+#[cfg(feature = "twofish")]
 use twofish::Twofish;
 
 use crate::crypto::checksum;
@@ -76,10 +80,13 @@ pub enum SymmetricKeyAlgorithm {
     Plaintext = 0,
     /// IDEA
     IDEA = 1,
+    #[cfg(feature = "des")]
     /// Triple-DES
     TripleDES = 2,
+    #[cfg(feature = "cast5")]
     /// CAST5
     CAST5 = 3,
+    #[cfg(feature = "blowfish")]
     /// Blowfish
     Blowfish = 4,
     // 5 & 6 are reserved for DES/SK
@@ -89,6 +96,7 @@ pub enum SymmetricKeyAlgorithm {
     AES192 = 8,
     /// AES with 256-bit key
     AES256 = 9,
+    #[cfg(feature = "twofish")]
     /// Twofish with 256-bit key
     Twofish = 10,
     /// [Camellia](https://tools.ietf.org/html/rfc5581#section-3) with 128-bit key
@@ -115,12 +123,16 @@ impl SymmetricKeyAlgorithm {
         match self {
             SymmetricKeyAlgorithm::Plaintext => 0,
             SymmetricKeyAlgorithm::IDEA => 8,
+            #[cfg(feature = "des")]
             SymmetricKeyAlgorithm::TripleDES => 8,
+            #[cfg(feature = "cast5")]
             SymmetricKeyAlgorithm::CAST5 => 8,
+            #[cfg(feature = "blowfish")]
             SymmetricKeyAlgorithm::Blowfish => 8,
             SymmetricKeyAlgorithm::AES128 => 16,
             SymmetricKeyAlgorithm::AES192 => 16,
             SymmetricKeyAlgorithm::AES256 => 16,
+            #[cfg(feature = "twofish")]
             SymmetricKeyAlgorithm::Twofish => 16,
             SymmetricKeyAlgorithm::Camellia128 => 16,
             SymmetricKeyAlgorithm::Camellia192 => 16,
@@ -135,13 +147,17 @@ impl SymmetricKeyAlgorithm {
         match self {
             SymmetricKeyAlgorithm::Plaintext => 0,
             SymmetricKeyAlgorithm::IDEA => 16,
+            #[cfg(feature = "des")]
             SymmetricKeyAlgorithm::TripleDES => 24,
+            #[cfg(feature = "cast5")]
             SymmetricKeyAlgorithm::CAST5 => 16,
+            #[cfg(feature = "blowfish")]
             // TODO: Validate this is the right key size.
             SymmetricKeyAlgorithm::Blowfish => 16, //56,
             SymmetricKeyAlgorithm::AES128 => 16,
             SymmetricKeyAlgorithm::AES192 => 24,
             SymmetricKeyAlgorithm::AES256 => 32,
+            #[cfg(feature = "twofish")]
             SymmetricKeyAlgorithm::Twofish => 32,
             SymmetricKeyAlgorithm::Camellia128 => 16,
             SymmetricKeyAlgorithm::Camellia192 => 24,
@@ -212,6 +228,7 @@ impl SymmetricKeyAlgorithm {
             match self {
                 SymmetricKeyAlgorithm::Plaintext => {}
                 SymmetricKeyAlgorithm::IDEA => unimplemented!("IDEA encrypt"),
+                #[cfg(feature = "des")]
                 SymmetricKeyAlgorithm::TripleDES => {
                     decrypt!(
                         TdesEde3,
@@ -223,6 +240,7 @@ impl SymmetricKeyAlgorithm {
                         resync
                     );
                 }
+                #[cfg(feature = "cast5")]
                 SymmetricKeyAlgorithm::CAST5 => decrypt!(
                     Cast5,
                     key,
@@ -232,6 +250,7 @@ impl SymmetricKeyAlgorithm {
                     bs,
                     resync
                 ),
+                #[cfg(feature = "blowfish")]
                 SymmetricKeyAlgorithm::Blowfish => decrypt!(
                     Blowfish,
                     key,
@@ -268,6 +287,7 @@ impl SymmetricKeyAlgorithm {
                     bs,
                     resync
                 ),
+                #[cfg(feature = "twofish")]
                 SymmetricKeyAlgorithm::Twofish => decrypt!(
                     Twofish,
                     key,
@@ -306,10 +326,13 @@ impl SymmetricKeyAlgorithm {
         match self {
             SymmetricKeyAlgorithm::Plaintext => {}
             SymmetricKeyAlgorithm::IDEA => unimplemented!("IDEA encrypt"),
+            #[cfg(feature = "des")]
             SymmetricKeyAlgorithm::TripleDES => {
                 decrypt_regular!(TdesEde3, key, iv_vec, ciphertext, self.block_size());
             }
+            #[cfg(feature = "cast5")]
             SymmetricKeyAlgorithm::CAST5 => decrypt_regular!(Cast5, key, iv_vec, ciphertext, bs),
+            #[cfg(feature = "blowfish")]
             SymmetricKeyAlgorithm::Blowfish => {
                 decrypt_regular!(Blowfish, key, iv_vec, ciphertext, self.block_size())
             }
@@ -322,6 +345,7 @@ impl SymmetricKeyAlgorithm {
             SymmetricKeyAlgorithm::AES256 => {
                 decrypt_regular!(Aes256, key, iv_vec, ciphertext, self.block_size())
             }
+            #[cfg(feature = "twofish")]
             SymmetricKeyAlgorithm::Twofish => {
                 decrypt_regular!(Twofish, key, iv_vec, ciphertext, self.block_size())
             }
@@ -451,12 +475,15 @@ impl SymmetricKeyAlgorithm {
             match self {
                 SymmetricKeyAlgorithm::Plaintext => {}
                 SymmetricKeyAlgorithm::IDEA => unimplemented_err!("IDEA encrypt"),
+                #[cfg(feature = "des")]
                 SymmetricKeyAlgorithm::TripleDES => {
                     encrypt!(TdesEde3, key, iv_vec, prefix, data, bs, resync);
                 }
+                #[cfg(feature = "cast5")]
                 SymmetricKeyAlgorithm::CAST5 => {
                     encrypt!(Cast5, key, iv_vec, prefix, data, bs, resync)
                 }
+                #[cfg(feature = "blowfish")]
                 SymmetricKeyAlgorithm::Blowfish => {
                     encrypt!(Blowfish, key, iv_vec, prefix, data, bs, resync)
                 }
@@ -469,6 +496,7 @@ impl SymmetricKeyAlgorithm {
                 SymmetricKeyAlgorithm::AES256 => {
                     encrypt!(Aes256, key, iv_vec, prefix, data, bs, resync)
                 }
+                #[cfg(feature = "twofish")]
                 SymmetricKeyAlgorithm::Twofish => {
                     encrypt!(Twofish, key, iv_vec, prefix, data, bs, resync)
                 }
@@ -501,16 +529,20 @@ impl SymmetricKeyAlgorithm {
         match self {
             SymmetricKeyAlgorithm::Plaintext => {}
             SymmetricKeyAlgorithm::IDEA => unimplemented!("IDEA encrypt"),
+            #[cfg(feature = "des")]
             SymmetricKeyAlgorithm::TripleDES => {
                 encrypt_regular!(TdesEde3, key, iv_vec, plaintext, bs);
             }
+            #[cfg(feature = "cast5")]
             SymmetricKeyAlgorithm::CAST5 => encrypt_regular!(Cast5, key, iv_vec, plaintext, bs),
+            #[cfg(feature = "blowfish")]
             SymmetricKeyAlgorithm::Blowfish => {
                 encrypt_regular!(Blowfish, key, iv_vec, plaintext, bs)
             }
             SymmetricKeyAlgorithm::AES128 => encrypt_regular!(Aes128, key, iv_vec, plaintext, bs),
             SymmetricKeyAlgorithm::AES192 => encrypt_regular!(Aes192, key, iv_vec, plaintext, bs),
             SymmetricKeyAlgorithm::AES256 => encrypt_regular!(Aes256, key, iv_vec, plaintext, bs),
+            #[cfg(feature = "twofish")]
             SymmetricKeyAlgorithm::Twofish => encrypt_regular!(Twofish, key, iv_vec, plaintext, bs),
             SymmetricKeyAlgorithm::Camellia128 => {
                 unimplemented_err!("Camellia 128 not yet available")
@@ -582,9 +614,13 @@ mod tests {
     roundtrip!(roundtrip_aes128, SymmetricKeyAlgorithm::AES128);
     roundtrip!(roundtrip_aes192, SymmetricKeyAlgorithm::AES192);
     roundtrip!(roundtrip_aes256, SymmetricKeyAlgorithm::AES256);
+    #[cfg(feature = "des")]
     roundtrip!(roundtrip_tripledes, SymmetricKeyAlgorithm::TripleDES);
+    #[cfg(feature = "blowfish")]
     roundtrip!(roundtrip_blowfish, SymmetricKeyAlgorithm::Blowfish);
+    #[cfg(feature = "twofish")]
     roundtrip!(roundtrip_twofish, SymmetricKeyAlgorithm::Twofish);
+    #[cfg(feature = "cast5")]
     roundtrip!(roundtrip_cast5, SymmetricKeyAlgorithm::CAST5);
 
     #[test]
