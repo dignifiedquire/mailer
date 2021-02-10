@@ -8,8 +8,6 @@ use crate::errors::Result;
 use crate::packet::{Packet, PacketParser};
 use crate::types::Tag;
 
-// TODO: can detect armored vs binary using a check if the first bit in the data is set. If it is cleared it is not a binary message, so can try to parse as armor ascii. (from gnupg source)
-
 /// Parses a list of secret and public keys from ascii armored text.
 #[cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
 pub fn from_armor_many<'a, R: io::Read + io::Seek + 'a>(

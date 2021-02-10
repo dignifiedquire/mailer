@@ -41,13 +41,64 @@
 //!
 //! [Packet based signing and verifying]: super::super::packet
 //! [signing and verifying with external hashing]: super::signed_key
+//!
+//! # Loading a public key and listing its details
+//!
+//! ```rust
+//! use pgp::composed::parse_public_keys;
+//! use pgp::types::KeyTrait;
+//! use std::path::Path;
+//!
+//! let mut path = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/debian-10-archive-key.asc");
+//!
+//! let keys = parse_public_keys(&std::fs::read(&path).unwrap()).unwrap();
+//!
+//! for key in &keys {
+//!     println!(
+//!         "key {:?} {:?} {:?}",
+//!         key.key_id(),
+//!         key.fingerprint(),
+//!         &key.details
+//!     );
+//!
+//!     for subkey in &key.public_subkeys {
+//!         println!("subkey {:?} {:?}", subkey.key_id(), subkey.fingerprint());
+//!     }
+//! }
+//! ```
 
 mod builder;
 mod public;
 mod secret;
 mod shared;
 
+use std::io::Cursor;
+
+use crate::{Deserializable, SignedPublicKey};
+
 pub use self::builder::*;
 pub use self::public::*;
 pub use self::secret::*;
 pub use self::shared::*;
+
+/// Parse one or more public keys from binary or ascii armored format.
+///
+/// If any part of the data failed to parse the whole operation will fail.
+///
+/// This is a convenience wrapper around [`SignedPublicKey::from_bytes_many()`]
+/// and [`SignedPublicKey::from_armor_many()`].
+pub fn parse_public_keys(data: &[u8]) -> Result<Vec<SignedPublicKey>, crate::errors::Error> {
+    // Most significant bit of first byte of a binary PGP packet is always 1,
+    // use that to distinguish ascii armored key files from binary key files.
+    // Ref: https://tools.ietf.org/html/rfc4880#section-4.2
+    // In theory e.g. 'asc' files should be ascii armored but often they just aren't.
+    if data[0] & 0x80 != 0 {
+        SignedPublicKey::from_bytes_many(Cursor::new(data)).collect::<Result<Vec<_>, _>>()
+    } else {
+        // Note that this discards the second part of the returned tuple,
+        // which contains the ascii armor headers, if any.
+        SignedPublicKey::from_armor_many(Cursor::new(data))?
+            .0
+            .collect::<Result<Vec<_>, _>>()
+    }
+}

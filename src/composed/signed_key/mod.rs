@@ -5,10 +5,10 @@
 //! Note that technically secret keys also can by definition derive a public key
 //! and hence themself perform verify and encrypt as a secret key can.
 //!
-//! [Key generation] is handled seperately.
+//! [Key generation and loading] is handled seperately.
 //! For signing directly with an RFC4880 compliant internal hashing, see [signing and verifying based on packets].
 //!
-//! [Key generation]: super::key
+//! [Key generation and loading]: super::key
 //! [signing and verifying based on packets]: crate::packet
 //!
 //! # Sign and Verify Example
