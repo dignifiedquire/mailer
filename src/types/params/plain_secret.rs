@@ -176,9 +176,7 @@ impl<'a> PlainSecretParamsRef<'a> {
                 },
                 _ => unreachable!("inconsistent key state"),
             },
-            PlainSecretParamsRef::DSA(_) => {
-                unimplemented_err!("DSA");
-            }
+            PlainSecretParamsRef::DSA(x) => Ok(SecretKeyRepr::DSA(DSASecretKey { x: x.into() })),
             PlainSecretParamsRef::Elgamal(_) => {
                 unimplemented_err!("Elgamal");
             }

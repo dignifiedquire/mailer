@@ -62,7 +62,7 @@ impl fmt::Debug for EdDSASecretKey {
 #[derive(Clone, PartialEq, Eq, Zeroize)]
 #[zeroize(drop)]
 pub struct DSASecretKey {
-    x: BigUint,
+    pub x: BigUint,
 }
 
 impl fmt::Debug for DSASecretKey {

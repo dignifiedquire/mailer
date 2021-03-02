@@ -53,6 +53,7 @@ thiserror = "1.0.9"
 try_from = "^0.3"
 twofish = "^0.5"
 zeroize = { version = "1.1.0", features = ["zeroize_derive"] }
+hmac = "0.10.1"
 
 [dependencies.buf_redux]
 version = "0.8.1"
