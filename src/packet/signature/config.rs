@@ -72,7 +72,7 @@ impl SignatureConfig {
         Ok(Signature::from_config(self, signed_hash_value, signature))
     }
 
-    /// Create a certificate siganture.
+    /// Create a certificate signature.
     pub fn sign_certificate<F>(
         self,
         key: &impl SecretKeyTrait,

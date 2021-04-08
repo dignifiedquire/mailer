@@ -83,12 +83,11 @@ impl Signature {
     {
         if let Some(issuer) = self.issuer() {
             if &key.key_id() != issuer {
-                // TODO: should this be an actual error?
                 warn!(
-                    "validating signature with a non matching Key ID {:?} != {:?}",
-                    &key.key_id(),
+                    "validating signature not possible since issueing key {:?} is not available",
                     issuer
                 );
+                return Ok(());
             }
         }
 
@@ -108,7 +107,7 @@ impl Signature {
         key.verify_signature(self.config.hash_alg, hash, &self.signature)
     }
 
-    /// Verifies a certificate siganture type.
+    /// Verifies a certificate signature type.
     pub fn verify_certificate(
         &self,
         key: &impl PublicKeyTrait,
@@ -119,12 +118,11 @@ impl Signature {
 
         if let Some(issuer) = self.issuer() {
             if &key.key_id() != issuer {
-                // TODO: should this be an actual error?
                 warn!(
-                    "validating certificate with a non matching Key ID {:?} != {:?}",
-                    &key.key_id(),
+                    "validating certificate not possible since issueing key {:?} is not available",
                     issuer
                 );
+                return Ok(());
             }
         }
 
@@ -189,11 +187,11 @@ impl Signature {
         let key_id = signing_key.key_id();
         if let Some(issuer) = self.issuer() {
             if &key_id != issuer {
-                // TODO: should this be an actual error?
                 warn!(
-                    "validating key binding with a non matching Key ID {:?} != {:?}",
-                    &key_id, issuer
+                    "validating key binding not possible since issueing key {:?} is not available",
+                    issuer
                 );
+                return Ok(());
             }
         }
 
@@ -234,11 +232,11 @@ impl Signature {
         let key_id = key.key_id();
         if let Some(issuer) = self.issuer() {
             if &key_id != issuer {
-                // TODO: should this be an actual error?
                 warn!(
-                    "validating key (revocation) with a non matching Key ID {:?} != {:?}",
-                    &key_id, issuer
+                    "validating key (revocation) not possible since issueing key {:?} is not available",
+                    issuer
                 );
+                return Ok(());
             }
         }
 
