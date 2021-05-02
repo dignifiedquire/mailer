@@ -406,9 +406,8 @@ impl Message {
                 let msg = Message::from_bytes(data.decompress()?)?;
                 msg.verify(key)
             }
-            // Nothing to do for others.
-            // TODO: should this return an error?
-            _ => Ok(()),
+            // Fail to verify unsigned messages.
+            _ => bail!("The message is not signed"),
         }
     }
 
@@ -822,6 +821,8 @@ mod tests {
         let pkey = skey.public_key();
 
         let lit_msg = Message::new_literal("hello.txt", "hello world\n");
+        assert!(lit_msg.verify(&pkey).is_err()); // Unsigned message shouldn't verify
+
         let signed_msg = lit_msg
             .sign(&skey, || "".into(), HashAlgorithm::SHA2_256)
             .unwrap();
